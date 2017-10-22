@@ -20,7 +20,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	server := api.NewServer(service.NewMessageBirdAdapter(apiKey))
+	server := api.NewServer(service.NewSMSService(service.NewMessageBirdAdapter(apiKey)))
 
 	port := os.Getenv(envPort)
 	if port == "" {

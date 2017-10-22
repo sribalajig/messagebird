@@ -14,13 +14,13 @@ import (
 
 // Server - contains a method to bootstrap a http server
 type Server struct {
-	messageBirdAdapter *service.MessageBirdAdapter
+	smsService *service.SMSService
 }
 
 // NewServer return a pointer to an HTTP Server
-func NewServer(messageBirdAdapter *service.MessageBirdAdapter) *Server {
+func NewServer(smsService *service.SMSService) *Server {
 	return &Server{
-		messageBirdAdapter: messageBirdAdapter,
+		smsService: smsService,
 	}
 }
 
@@ -57,13 +57,8 @@ func (server *Server) newSMSHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = server.messageBirdAdapter.Send(sms)
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		writeError(response{Message: err.Error()}, w)
-	} else {
-		w.WriteHeader(http.StatusOK)
-	}
+	server.smsService.Send(sms)
+	w.WriteHeader(http.StatusOK)
 }
 
 func writeError(resp response, w http.ResponseWriter) {

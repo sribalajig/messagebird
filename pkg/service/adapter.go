@@ -1,13 +1,10 @@
 package service
 
 import (
-	"fmt"
-	"log"
 	"messagebird/pkg/model"
 	"time"
 
 	"github.com/messagebird/go-rest-api"
-	"github.com/satori/go.uuid"
 )
 
 // MessageBirdAdapter sends messages using the messagebird API
@@ -22,22 +19,22 @@ func NewMessageBirdAdapter(apiKey string) *MessageBirdAdapter {
 	}
 }
 
-// Send ...
-func (adapter *MessageBirdAdapter) Send(sms model.SMS) error {
+// Send - send an SMS, will time out in half a second
+func (adapter *MessageBirdAdapter) Send(sms model.SMS, resp chan<- response) error {
 	client := messagebird.New(adapter.APIKey)
-	ref := uuid.NewV4()
 
 	task := func() error {
 		message, err := client.NewMessage(
 			sms.Originator,
 			[]string{sms.Recipient},
 			sms.Message,
-			&messagebird.MessageParams{Reference: ref.String()})
+			&messagebird.MessageParams{Reference: sms.Reference})
 
-		log.Println(fmt.Sprintf("This is the response from the messagebird api : %#v", message))
-
-		if err != nil {
-			log.Println(fmt.Sprintf("Error while sending SMS through messagebird api : '%s'", err.Error()))
+		if len(message.Recipients.Items) > 0 {
+			resp <- response{
+				Status:    message.Recipients.Items[0].Status,
+				Reference: message.Reference,
+			}
 		}
 
 		return err

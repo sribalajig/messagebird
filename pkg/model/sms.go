@@ -7,6 +7,7 @@ import (
 
 // SMS is the data structure for an SMS
 type SMS struct {
+	Reference  string
 	Recipient  string
 	Originator string
 	Message    string
