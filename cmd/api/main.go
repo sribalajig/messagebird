@@ -1,15 +1,26 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"messagebird/pkg/api"
+	"messagebird/pkg/service"
 	"os"
 )
 
-const envPort = "HTTP_PORT"
+const (
+	envPort   = "HTTP_PORT"
+	envAPIKey = "MESSAGE_BIRD_API_KEY"
+)
 
 func main() {
-	server := api.NewServer()
+	apiKey := os.Getenv(envAPIKey)
+	if apiKey == "" {
+		log.Println(fmt.Sprintf("%s is not defined in environment variables.", envAPIKey))
+		os.Exit(1)
+	}
+
+	server := api.NewServer(service.NewMessageBirdAdapter(apiKey))
 
 	port := os.Getenv(envPort)
 	if port == "" {

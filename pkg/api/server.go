@@ -7,17 +7,21 @@ import (
 	"net/http"
 
 	"messagebird/pkg/model"
+	"messagebird/pkg/service"
 
 	"github.com/gorilla/mux"
 )
 
 // Server - contains a method to bootstrap a http server
 type Server struct {
+	messageBirdAdapter *service.MessageBirdAdapter
 }
 
 // NewServer return a pointer to an HTTP Server
-func NewServer() *Server {
-	return &Server{}
+func NewServer(messageBirdAdapter *service.MessageBirdAdapter) *Server {
+	return &Server{
+		messageBirdAdapter: messageBirdAdapter,
+	}
 }
 
 // Start - starts the http server
@@ -28,7 +32,7 @@ func (server *Server) Start(port string, ch chan error) {
 
 	s.HandleFunc("/sms", server.newSMSHandler).Methods(http.MethodPost)
 
-	log.Printf("HTTP server listening on port : %s\n", port)
+	log.Printf("HTTP server listening on port : '%s'\n", port)
 
 	err := http.ListenAndServe(fmt.Sprintf(":%s", port), r)
 
@@ -47,10 +51,23 @@ func (server *Server) newSMSHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if valid, err := sms.IsValid(); !valid {
-		resp := response{Message: err.Error()}
-		json.NewEncoder(w).Encode(resp)
-
 		w.WriteHeader(http.StatusUnprocessableEntity)
-		w.Header().Set("Content-Type", "application/json")
+		writeError(response{Message: err.Error()}, w)
+
+		return
 	}
+
+	err = server.messageBirdAdapter.Send(sms)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		writeError(response{Message: err.Error()}, w)
+	} else {
+		w.WriteHeader(http.StatusOK)
+	}
+}
+
+func writeError(resp response, w http.ResponseWriter) {
+	json.NewEncoder(w).Encode(resp)
+
+	w.Header().Set("Content-Type", "application/json")
 }
