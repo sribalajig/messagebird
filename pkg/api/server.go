@@ -46,7 +46,11 @@ func (server *Server) newSMSHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if valid, _ := sms.IsValid(); !valid {
+	if valid, err := sms.IsValid(); !valid {
+		resp := response{Message: err.Error()}
+		json.NewEncoder(w).Encode(resp)
+
 		w.WriteHeader(http.StatusUnprocessableEntity)
+		w.Header().Set("Content-Type", "application/json")
 	}
 }

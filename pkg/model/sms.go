@@ -30,8 +30,8 @@ func (sms *SMS) IsValid() (bool, error) {
 
 	if len(errs) > 0 {
 		err := strings.Join(errs, ",")
-		return true, errors.New(err)
+		return false, errors.New(err)
 	}
 
-	return false, nil
+	return true, nil
 }
