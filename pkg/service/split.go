@@ -39,7 +39,7 @@ func split(sms model.SMS) []model.SMS {
 			Recipient:  sms.Recipient,
 			Originator: sms.Originator,
 			Message:    sms.Message[chunkStart:chunkEnd],
-			UDH:        fmt.Sprintf("050003A6%s%s", digits[chunks], digits[i]),
+			UDH:        fmt.Sprintf("050003A6%s%s", digits[chunks], digits[i+1]),
 		}
 
 		s = append(s, smsChunk)

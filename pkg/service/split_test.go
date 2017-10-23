@@ -70,4 +70,16 @@ func TestSplitThreeSMSs(t *testing.T) {
 			msg,
 			fmt.Sprintf("%s%s%s", sp[0].Message, sp[1].Message, sp[2].Message))
 	}
+
+	if sp[0].UDH != "050003A60301" {
+		t.Fatalf("Expected '%s', got '%s'", "050003A60301", sp[0].UDH)
+	}
+
+	if sp[1].UDH != "050003A60302" {
+		t.Fatalf("Expected '%s', got '%s'", "050003A60302", sp[0].UDH)
+	}
+
+	if sp[2].UDH != "050003A60303" {
+		t.Fatalf("Expected '%s', got '%s'", "050003A60303", sp[0].UDH)
+	}
 }
