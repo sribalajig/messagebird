@@ -26,5 +26,9 @@ func NewSMSService(adapter *MessageBirdAdapter) *SMSService {
 func (service *SMSService) Send(sms model.SMS) {
 	sms.Reference = uuid.NewV4().String()
 
-	go service.workerPool.Do(sms)
+	sp := split(sms)
+
+	for _, s := range sp {
+		go service.workerPool.Do(s)
+	}
 }

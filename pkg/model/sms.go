@@ -11,6 +11,7 @@ type SMS struct {
 	Recipient  string
 	Originator string
 	Message    string
+	UDH        string
 }
 
 // IsValid validates the SMS and returns error if any
