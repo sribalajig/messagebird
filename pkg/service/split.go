@@ -7,15 +7,20 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+const (
+	maxSMSLength = 160
+	maxChunks    = 9
+)
+
 func split(sms model.SMS) []model.SMS {
-	if len(sms.Message) <= 160 {
+	if len(sms.Message) <= maxSMSLength {
 		return []model.SMS{sms}
 	}
 
-	chunks := (len(sms.Message) / 161) + 1
+	chunks := len(sms.Message)/(maxSMSLength+1) + 1
 
-	if chunks > 9 {
-		chunks = 9
+	if chunks > maxChunks {
+		chunks = maxChunks
 	}
 
 	var s []model.SMS
@@ -48,11 +53,11 @@ func getChunkStart(index int) int {
 		return 0
 	}
 
-	return 160*index + 1
+	return maxSMSLength*index + 1
 }
 
 func getChunkEnd(index int) int {
-	return (index+1)*160 + 1
+	return (index+1)*maxSMSLength + 1
 }
 
 var digits = map[int]string{
