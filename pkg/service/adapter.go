@@ -28,7 +28,10 @@ func (adapter *MessageBirdAdapter) Send(sms model.SMS, resp chan<- response) err
 			sms.Originator,
 			[]string{sms.Recipient},
 			sms.Message,
-			&messagebird.MessageParams{Reference: sms.Reference})
+			&messagebird.MessageParams{
+				Reference:   sms.Reference,
+				TypeDetails: messagebird.TypeDetails{"udh": sms.UDH}},
+		)
 
 		if len(message.Recipients.Items) > 0 {
 			resp <- response{
