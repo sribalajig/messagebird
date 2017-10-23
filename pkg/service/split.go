@@ -20,20 +20,13 @@ func split(sms model.SMS) []model.SMS {
 
 	var s []model.SMS
 	for i := 0; i < chunks; i++ {
-		chunkStart := i * 160
-		if i != 0 {
-			chunkStart++
-		}
+		chunkStart := getChunkStart(i)
 
 		var chunkEnd int
 		if i == chunks-1 {
 			chunkEnd = len(sms.Message)
 		} else {
-			chunkEnd = chunkStart + 160
-		}
-
-		if i == 0 {
-			chunkEnd++
+			chunkEnd = getChunkEnd(i)
 		}
 
 		smsChunk := model.SMS{
@@ -48,6 +41,18 @@ func split(sms model.SMS) []model.SMS {
 	}
 
 	return s
+}
+
+func getChunkStart(index int) int {
+	if index == 0 {
+		return 0
+	}
+
+	return 160*index + 1
+}
+
+func getChunkEnd(index int) int {
+	return (index+1)*160 + 1
 }
 
 var digits = map[int]string{
