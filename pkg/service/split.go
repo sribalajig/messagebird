@@ -3,8 +3,6 @@ package service
 import (
 	"fmt"
 	"messagebird/pkg/model"
-
-	uuid "github.com/satori/go.uuid"
 )
 
 const (
@@ -35,7 +33,7 @@ func split(sms model.SMS) []model.SMS {
 		}
 
 		smsChunk := model.SMS{
-			Reference:  uuid.NewV4().String(),
+			Reference:  sms.Reference,
 			Recipient:  sms.Recipient,
 			Originator: sms.Originator,
 			Message:    sms.Message[chunkStart:chunkEnd],

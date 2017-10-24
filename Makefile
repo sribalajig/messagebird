@@ -15,3 +15,6 @@ dep:
 
 clean:
 	rm -r vendor
+
+docker-run:
+	docker-compose up --build
