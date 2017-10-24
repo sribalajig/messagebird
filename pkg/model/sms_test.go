@@ -23,7 +23,8 @@ func TestIsValid(t *testing.T) {
 			if err == nil {
 				t.Logf("Expected error '%s' but got no error", testCase.ExpectedError)
 				t.Fail()
-			} else {
+			} else if testCase.ExpectedError != err.Error() {
+				t.Fail()
 				t.Logf("Expected error '%s', got error '%s'", testCase.ExpectedError, err.Error())
 			}
 		}
