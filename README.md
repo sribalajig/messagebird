@@ -64,3 +64,7 @@ POST http://localhost:8081/api/sms
  "message" : "He had come to that moment in his age when there occurred to him, with increasing intensity, a question of such overwhelming simplicity that he had no means to face it. He found himself wondering if his life were worth the living; if it had ever been. It was a question, he suspected, that came to all men at one time or another;"
 }
 ```
+
+## Code
+
+/cmd/api/main.go is the entrypoint. Start exploring from there.
