@@ -52,16 +52,17 @@ func (server *Server) newSMSHandler(w http.ResponseWriter, r *http.Request) {
 
 	if valid, err := sms.IsValid(); !valid {
 		w.WriteHeader(http.StatusUnprocessableEntity)
-		writeError(response{Message: err.Error()}, w)
+		write(response{Message: err.Error()}, w)
 
 		return
 	}
 
-	server.smsService.Send(sms)
+	ref := server.smsService.Send(sms)
 	w.WriteHeader(http.StatusOK)
+	write(response{Message: "SMS Scheduled", Data: referece{ReferenceID: ref}}, w)
 }
 
-func writeError(resp response, w http.ResponseWriter) {
+func write(resp response, w http.ResponseWriter) {
 	json.NewEncoder(w).Encode(resp)
 
 	w.Header().Set("Content-Type", "application/json")

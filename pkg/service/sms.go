@@ -23,7 +23,7 @@ func NewSMSService(adapter *MessageBirdAdapter) *SMSService {
 }
 
 // Send - sends the given SMS by taking rate limiting into account
-func (service *SMSService) Send(sms model.SMS) {
+func (service *SMSService) Send(sms model.SMS) string {
 	sms.Reference = uuid.NewV4().String()
 
 	sp := split(sms)
@@ -31,4 +31,6 @@ func (service *SMSService) Send(sms model.SMS) {
 	for _, s := range sp {
 		go service.workerPool.Do(s)
 	}
+
+	return sms.Reference
 }
