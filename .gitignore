@@ -2,3 +2,4 @@
 cmd/api/api
 cmd/balance/balance
 main
+/vendor
