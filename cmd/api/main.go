@@ -4,13 +4,16 @@ import (
 	"fmt"
 	"log"
 	"messagebird/pkg/api"
+	"messagebird/pkg/datastore"
 	"messagebird/pkg/service"
 	"os"
 )
 
 const (
-	envPort   = "HTTP_PORT"
-	envAPIKey = "MESSAGE_BIRD_API_KEY"
+	envDbHost   = "DB_HOST"
+	envDbPort   = "DB_PORT"
+	envHTTPPort = "HTTP_PORT"
+	envAPIKey   = "MESSAGE_BIRD_API_KEY"
 )
 
 func main() {
@@ -20,11 +23,29 @@ func main() {
 		os.Exit(1)
 	}
 
-	server := api.NewServer(service.NewSMSService(service.NewMessageBirdAdapter(apiKey)))
+	dbHost := os.Getenv(envDbHost)
+	port := os.Getenv(envDbPort)
+	if dbHost == "" || port == "" {
+		log.Fatal("Database host/port not set in the Environment. Exiting..")
+		os.Exit(0)
+	}
 
-	port := os.Getenv(envPort)
+	sessFactory, err := datastore.NewSessionFactory(dbHost, port)
+	if err != nil {
+		log.Fatalf("Unable to connect to mongo db : %s. Exiting., host : %s, port %s", err.Error(), "mongo", "27017")
+		os.Exit(1)
+	}
+
+	server := api.NewServer(
+		service.NewSMSService(
+			service.NewMessageBirdAdapter(apiKey),
+			datastore.NewMongo(sessFactory),
+		),
+	)
+
+	port = os.Getenv(envHTTPPort)
 	if port == "" {
-		log.Fatalf("Environment variable '%s' is not set", envPort)
+		log.Fatalf("Environment variable '%s' is not set", envHTTPPort)
 		os.Exit(1)
 	}
 
