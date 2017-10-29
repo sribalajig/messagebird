@@ -10,6 +10,7 @@ import (
 type Provider interface {
 	Create(sms *model.SMS) error
 	GetByRefID(refID string) []model.SMS
+	UpdateStatus(refID string, status string) error
 }
 
 type mongo struct {
@@ -38,4 +39,19 @@ func (m *mongo) GetByRefID(refID string) []model.SMS {
 	session.DB("messagebird").C("sms").Find(bson.M{"reference": refID}).All(&s)
 
 	return s
+}
+
+// UpdateStatus updates the status of the SMS's with the given ref ID
+func (m *mongo) UpdateStatus(refID string, status string) error {
+	session := m.sessionFactory.Get()
+	defer session.Close()
+
+	query := bson.M{"reference": refID}
+	update := bson.M{
+		"$set": bson.M{"status": status},
+	}
+
+	_, err := session.DB("messagebird").C("sms").UpdateAll(query, update)
+
+	return err
 }

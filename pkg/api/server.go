@@ -31,7 +31,7 @@ func (server *Server) Start(port string, ch chan error) {
 	s := r.PathPrefix("/api").Subrouter()
 
 	s.HandleFunc("/sms", server.newSMSHandler).Methods(http.MethodPost)
-	s.HandleFunc("/sms", server.getByRefID).Methods(http.MethodGet)
+	s.HandleFunc("/sms", server.getByRefIDHandler).Methods(http.MethodGet)
 
 	log.Printf("HTTP server listening on port : '%s'\n", port)
 
@@ -63,7 +63,7 @@ func (server *Server) newSMSHandler(w http.ResponseWriter, r *http.Request) {
 	write(response{Message: "SMS Scheduled", Data: referece{ReferenceID: ref}}, w)
 }
 
-func (server *Server) getByRefID(w http.ResponseWriter, r *http.Request) {
+func (server *Server) getByRefIDHandler(w http.ResponseWriter, r *http.Request) {
 	params := r.URL.Query()
 	var p []string
 	var ok bool

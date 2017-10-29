@@ -26,7 +26,7 @@ func newWorkerPool(adapter *MessageBirdAdapter) *workerPool {
 }
 
 // Init gets the worker pool going
-func (w *workerPool) Init() {
+func (w *workerPool) Init(respHandler func(resp response, err chan<- error)) {
 	for {
 		select {
 		case <-w.rateLimit:
@@ -36,6 +36,12 @@ func (w *workerPool) Init() {
 		case rs := <-w.resp:
 			log.Println("Have to now process the response.")
 			log.Println(fmt.Sprintf("Message : %#v", rs))
+
+			errCh := make(chan error)
+			go respHandler(rs, errCh)
+			if err := <-errCh; err != nil {
+				log.Println(fmt.Sprintf("Error handling response from Messagebird API : '%s'", err.Error()))
+			}
 		case <-w.done:
 			break
 		}

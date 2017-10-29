@@ -12,7 +12,15 @@ type SMS struct {
 	Originator string
 	Message    string
 	UDH        string
+	Status     string
 }
+
+const (
+	// StatusQueued - message is queued to be sent to the messagebird API
+	StatusQueued = "queued"
+	// StatusSent - message was sent successfully with the messagebird API
+	StatusSent = "sent"
+)
 
 // IsValid validates the SMS and returns error if any
 func (sms *SMS) IsValid() (bool, error) {

@@ -17,12 +17,16 @@ type SMSService struct {
 func NewSMSService(adapter *MessageBirdAdapter, provider datastore.Provider) *SMSService {
 	wp := newWorkerPool(adapter)
 
-	go wp.Init()
-
-	return &SMSService{
+	smsService := &SMSService{
 		workerPool:   wp,
 		dataProvider: provider,
 	}
+
+	go wp.Init(func(res response, err chan<- error) {
+		err <- smsService.UpdateStatus(res.Reference, res.Status)
+	})
+
+	return smsService
 }
 
 // Send - sends the given SMS by taking rate limiting into account
@@ -33,6 +37,7 @@ func (service *SMSService) Send(sms model.SMS) string {
 
 	for _, s := range sp {
 		service.dataProvider.Create(&s)
+
 		go service.workerPool.Do(s)
 	}
 
@@ -42,4 +47,9 @@ func (service *SMSService) Send(sms model.SMS) string {
 // Get returns SMS's by reference ID
 func (service *SMSService) Get(refID string) []model.SMS {
 	return service.dataProvider.GetByRefID(refID)
+}
+
+// UpdateStatus updates the status of the given reference ID to the given status
+func (service *SMSService) UpdateStatus(refID string, status string) error {
+	return service.dataProvider.UpdateStatus(refID, status)
 }
